@@ -17,7 +17,8 @@
 $.widget( "ui.autocomplete", {
 	options: {
 		minLength: 1,
-		delay: 300
+		delay: 300,
+		offset: "0 0"
 	},
 	_create: function() {
 		var self = this,
@@ -273,7 +274,8 @@ $.widget( "ui.autocomplete", {
 			my: "left top",
 			at: "left bottom",
 			of: this.element,
-			collision: "none"
+			collision: "none",
+			offset: this.options.offset
 		});
 
 		menuWidth = ul.width( "" ).width();
