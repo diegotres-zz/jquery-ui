@@ -18,11 +18,13 @@
 	
 	<property file="ant.properties" />
 
-	<loadfile failonerror="no" srcFile="../version.txt" property="release.version" />
+	<loadfile failonerror="no" srcFile="../version.txt" property="release.version">
+		<filterchain><striplinebreaks/></filterchain>
+	</loadfile>
 	<property name="release.filename" value="jquery-ui-${release.version}" />
 
 	<property name="dist.dir" value="dist/${release.filename}/" />
-	<property name="cdndist.dir" value="dist/${release.filename}-googlecdn" />
+	<property name="cdndist.dir" value="dist/${release.filename}-cdn" />
 	<property name="build.dir" value="build" />
 	<property name="ui.dir" value="../" />
 	<property name="src.dir" value="${ui.dir}/ui/" />
@@ -39,7 +41,7 @@
 
 	<property description="Google Closure" name="closure-jar" value="${build.dir}/google-compiler-20091218.jar" />
 	
-	<target name="deploy-release" depends="clean, docs-download, concatenate, minify, copy, replace-version, prepend-header, zip, googlecdn" description="Release builder">
+	<target name="deploy-release" depends="clean, docs-download, concatenate, minify, copy, replace-version, prepend-header, zip" description="Release builder">
 	</target>
 	
 	<target name="replace-version">
@@ -67,7 +69,7 @@
 				</concat>
 			</sequential>
 		</for>
-		<copy todir="${min.dir}">
+		<copy todir="${min.dir}" overwrite="true">
 			<fileset dir="${dist.dir}/ui-headered/" includes="*.js" />
 		</copy>
 		
@@ -297,8 +299,11 @@
 				<mapper type="regexp" from="(.*)jquery-ui-.*custom.css" to="\1jquery-ui.css" />
 			</mapper>
 		</move>
-		<zip destfile="${dist.dir}/../${release.filename}-themes.zip">
-			<zipfileset dir="${dist.dir}/" includes="AUTHORS.txt,GPL-LICENSE.txt,MIT-LICENSE.txt,version.txt,themes/**" />
+		<copy todir="dist/jquery-ui-themes-${release.version}">
+			<fileset dir="${dist.dir}/" includes="AUTHORS.txt,GPL-LICENSE.txt,MIT-LICENSE.txt,version.txt,themes/**" />
+		</copy>
+		<zip destfile="${dist.dir}/../jquery-ui-themes-${release.version}.zip">
+			<zipfileset dir="dist/" includes="jquery-ui-themes-${release.version}/" />
 		</zip>
 	</target>
 
@@ -310,7 +315,7 @@
 		<echo message="All trailing spaces removed." />
 	</target>
 	
-	<target name="googlecdn">
+	<target name="cdn">
     	<delete dir="${cdndist.dir}" />
     	<mkdir dir="${cdndist.dir}" />
 		<copy todir="${cdndist.dir}">
@@ -342,7 +347,10 @@
 		</for>
 		<delete dir="${cdndist.dir}" includes="**/*.MD5" />
 		<zip destfile="${dist.dir}/../${release.filename}-googlecdn.zip">
-			<zipfileset dir="${cdndist.dir}/" />
+			<zipfileset dir="dist/" includes="${release.filename}-cdn/" />
+		</zip>
+		<zip destfile="${dist.dir}/../${release.filename}-mscdn.zip">
+			<zipfileset dir="dist/${release.filename}-cdn/" />
 		</zip>
     </target>
 
